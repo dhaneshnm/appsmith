@@ -3,16 +3,24 @@ import React, { useMemo } from "react";
 import { useSelector } from "react-redux";
 import { get, minBy, maxBy } from "lodash";
 
+import { isMac } from "utils/helpers";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
+import Text, { TextType } from "components/ads/Text";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
   border: 1.5px dashed #69b5ff;
   background-color: rgb(84 132 236 / 6%);
+`;
+
+const StyledActionsContainer = styled.div`
+  position: relative;
+  height: 100%;
+  width: 100%;
 `;
 
 const StyledActions = styled.div`
@@ -42,9 +50,34 @@ const StyledAction = styled.button`
   }
 `;
 
+const StyledHelpBar = styled.div`
+  display: flex;
+  height: 28px;
+  display: flex;
+  justify-content: flex-end;
+  top: calc(100% + 4px);
+  position: absolute;
+  width: 100%;
+
+  & > div {
+    display: flex;
+    align-items: center;
+    color: white;
+    padding: 0 ${(props) => props.theme.spaces[4]}px;
+    background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
+  }
+`;
+
 const CopyIcon = ControlIcons.COPY2_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
+
+const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
+const comboText = (
+  <>
+    Click or <b>{modText()} + C</b> & {modText()} + V
+  </>
+);
 
 interface OffsetBox {
   top: number;
@@ -125,17 +158,29 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
           get(width, "left", 0) + get(width, "width", 0) - get(left, "left", 0),
       }}
     >
-      <StyledActions>
-        <StyledAction>
-          <CopyIcon color="black" height={16} width={16} />
-        </StyledAction>
-        <StyledAction>
-          <CutIcon color="black" height={16} width={16} />
-        </StyledAction>
-        <StyledAction>
-          <DeleteIcon color="black" height={16} width={16} />
-        </StyledAction>
-      </StyledActions>
+      <StyledActionsContainer>
+        <StyledHelpBar
+          className="t--global-search-modal-trigger"
+          data-cy="global-search-modal-trigger"
+        >
+          <div>
+            <Text color="white" highlight italic type={TextType.P3}>
+              {comboText}
+            </Text>
+          </div>
+        </StyledHelpBar>
+        <StyledActions>
+          <StyledAction>
+            <CopyIcon color="black" height={16} width={16} />
+          </StyledAction>
+          <StyledAction>
+            <CutIcon color="black" height={16} width={16} />
+          </StyledAction>
+          <StyledAction>
+            <DeleteIcon color="black" height={16} width={16} />
+          </StyledAction>
+        </StyledActions>
+      </StyledActionsContainer>
     </StyledSelectionBox>
   );
 }
