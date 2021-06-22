@@ -1862,6 +1862,65 @@ function* cutWidgetSaga() {
   });
 }
 
+/**
+ * it creates container widget and places the selected widget inside it
+ * the height and width of the container will be based on the bounding box of the
+ * selected widgets
+ *
+ * @returns
+ */
+function* groupWidgetSaga() {
+  const allWidgets: { [widgetId: string]: FlattenedWidgetProps } = yield select(
+    getWidgets,
+  );
+  const selectedWidgets: string[] = yield select(getSelectedWidgets);
+
+  if (!selectedWidgets) {
+    Toaster.show({
+      text: createMessage(ERROR_WIDGET_CUT_NO_WIDGET_SELECTED),
+      variant: Variant.info,
+    });
+    return;
+  }
+
+  const selectedWidgetProps = selectedWidgets.map((each) => allWidgets[each]);
+  // const childWidgetPayload: GeneratedWidgetPayload = yield generateChildWidgets(
+  //   allWidgets[MAIN_CONTAINER_WIDGET_ID],
+  //   WidgetConfigResponse.config.CONTAINER_WIDGET,
+  //   allWidgets,
+  // );
+
+  const saveResult = yield createSelectedWidgetsCopy(selectedWidgetProps);
+
+  selectedWidgetProps.forEach((each) => {
+    const eventName = "WIDGET_CUT_VIA_SHORTCUT"; // cut only supported through a shortcut
+    AnalyticsUtil.logEvent(eventName, {
+      widgetName: each.widgetName,
+      widgetType: each.type,
+    });
+  });
+
+  if (saveResult) {
+    Toaster.show({
+      text: createMessage(
+        WIDGET_CUT,
+        selectedWidgetProps.length > 1
+          ? `${selectedWidgetProps.length} Widgets`
+          : selectedWidgetProps[0].widgetName,
+      ),
+      variant: Variant.success,
+    });
+  }
+
+  yield put({
+    type: ReduxActionTypes.WIDGET_DELETE,
+    payload: {
+      disallowUndo: true,
+      isShortcut: true,
+    },
+  });
+}
+
 function* addTableWidgetFromQuerySaga(action: ReduxAction<string>) {
   try {
     const columns = 8 * GRID_DENSITY_MIGRATION_V1;
