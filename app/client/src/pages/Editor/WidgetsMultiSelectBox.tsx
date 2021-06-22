@@ -19,9 +19,6 @@ import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
-  border: 1.5px dashed #69b5ff;
-  background-color: rgb(84 132 236 / 6%);
-  z-index: 3;
 `;
 
 const StyledActionsContainer = styled.div`
@@ -34,6 +31,8 @@ const StyledActions = styled.div`
   margin-left: calc(100% + 4px);
   padding: 5px 0;
   width: max-content;
+  z-index: 4;
+  position: relative;
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
 
@@ -58,6 +57,46 @@ const StyledAction = styled.button`
   }
 `;
 
+const StyledSelectBoxHandleTop = styled.div`
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  z-index: 5;
+  border-top: 1.5px dashed #69b5ff;
+  top: -1px;
+  left: -1px;
+`;
+
+const StyledSelectBoxHandleLeft = styled.div`
+  width: 1px;
+  height: 100%;
+  position: absolute;
+  z-index: 5;
+  border-left: 1.5px dashed #69b5ff;
+  top: -1px;
+  left: -1px;
+`;
+
+const StyledSelectBoxHandleRight = styled.div`
+  width: 1px;
+  height: 100%;
+  position: absolute;
+  z-index: 5;
+  border-left: 1.5px dashed #69b5ff;
+  top: -1px;
+  left: 100%;
+`;
+
+const StyledSelectBoxHandleBottom = styled.div`
+  width: 100%;
+  height: 1px;
+  position: absolute;
+  z-index: 5;
+  border-bottom: 1.5px dashed #69b5ff;
+  top: 100%;
+  left: -1px;
+`;
+
 export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
   offset: {
     enabled: true,
@@ -70,8 +109,11 @@ export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
 const CopyIcon = ControlIcons.COPY2_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
-const GroupIcon = ControlIcons.GROUP_CONTROL;
 
+/**
+ * helper text that comes in popover on hover of actions in context menu
+ * @returns
+ */
 const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
 const copyHelpText = (
   <>
@@ -211,6 +253,10 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
           get(width, "left", 0) + get(width, "width", 0) - get(left, "left", 0),
       }}
     >
+      <StyledSelectBoxHandleTop />
+      <StyledSelectBoxHandleLeft />
+      <StyledSelectBoxHandleRight />
+      <StyledSelectBoxHandleBottom />
       <StyledActionsContainer>
         <StyledActions>
           {/* copy widgets */}
@@ -247,18 +293,6 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
           >
             <StyledAction onClick={onDeleteSelectedWidgets}>
               <DeleteIcon color="black" height={16} width={16} />
-            </StyledAction>
-          </Tooltip>
-          {/* group widgets */}
-          <Tooltip
-            boundary="viewport"
-            content={deleteHelpText}
-            maxWidth="400px"
-            modifiers={PopoverModifiers}
-            position={Position.RIGHT}
-          >
-            <StyledAction onClick={onDeleteSelectedWidgets}>
-              <GroupIcon color="black" height={16} width={16} />
             </StyledAction>
           </Tooltip>
         </StyledActions>
