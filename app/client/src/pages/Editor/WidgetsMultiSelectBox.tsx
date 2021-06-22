@@ -10,11 +10,12 @@ import {
 } from "actions/widgetActions";
 import { isMac } from "utils/helpers";
 import { FormIcons } from "icons/FormIcons";
+import Tooltip from "components/ads/Tooltip";
 import { ControlIcons } from "icons/ControlIcons";
 import { getSelectedWidgets } from "selectors/ui";
 import { generateClassName } from "utils/generators";
-import Text, { TextType } from "components/ads/Text";
 import { getCanvasWidgets } from "selectors/entitiesSelector";
+import { IPopoverSharedProps, Position } from "@blueprintjs/core";
 
 const StyledSelectionBox = styled.div`
   position: absolute;
@@ -30,7 +31,7 @@ const StyledActionsContainer = styled.div`
 
 const StyledActions = styled.div`
   margin-left: calc(100% + 4px);
-  padding: 5px;
+  padding: 5px 0;
   width: max-content;
   background-color: ${(props) => props.theme.colors.appBackground};
 `;
@@ -42,6 +43,7 @@ const StyledAction = styled.button`
   display: flex;
   align-items: center;
   justify-content: center;
+  margin: 0 5px;
   outline: none;
   border: none;
   background: transparent;
@@ -55,32 +57,33 @@ const StyledAction = styled.button`
   }
 `;
 
-const StyledHelpBar = styled.div`
-  display: flex;
-  height: 28px;
-  display: flex;
-  justify-content: flex-end;
-  top: calc(100% + 4px);
-  position: absolute;
-  width: 100%;
-
-  & > div {
-    display: flex;
-    align-items: center;
-    color: white;
-    padding: 0 ${(props) => props.theme.spaces[4]}px;
-    background: ${(props) => props.theme.colors.globalSearch.helpBarBackground};
-  }
-`;
+export const PopoverModifiers: IPopoverSharedProps["modifiers"] = {
+  offset: {
+    enabled: true,
+  },
+  arrow: {
+    enabled: false,
+  },
+};
 
 const CopyIcon = ControlIcons.COPY2_CONTROL;
 const DeleteIcon = FormIcons.DELETE_ICON;
 const CutIcon = ControlIcons.CUT_CONTROL;
 
 const modText = () => (isMac() ? <span>&#8984;</span> : "ctrl");
-const comboText = (
+const copyHelpText = (
   <>
     Click or <b>{modText()} + C</b> & {modText()} + V
+  </>
+);
+const cutHelpText = (
+  <>
+    Click or <b>{modText()} + X</b> & {modText()} + V
+  </>
+);
+const deleteHelpText = (
+  <>
+    Click or <b> Del </b>
   </>
 );
 
@@ -207,26 +210,43 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
       }}
     >
       <StyledActionsContainer>
-        <StyledHelpBar
-          className="t--global-search-modal-trigger"
-          data-cy="global-search-modal-trigger"
-        >
-          <div>
-            <Text color="white" highlight italic type={TextType.P3}>
-              {comboText}
-            </Text>
-          </div>
-        </StyledHelpBar>
         <StyledActions>
-          <StyledAction onClick={onCopySelectedWidgets}>
-            <CopyIcon color="black" height={16} width={16} />
-          </StyledAction>
-          <StyledAction onClick={onCutSelectedWidgets}>
-            <CutIcon color="black" height={16} width={16} />
-          </StyledAction>
-          <StyledAction onClick={onDeleteSelectedWidgets}>
-            <DeleteIcon color="black" height={16} width={16} />
-          </StyledAction>
+          {/* copy widgets */}
+          <Tooltip
+            boundary="viewport"
+            content={copyHelpText}
+            maxWidth="400px"
+            modifiers={PopoverModifiers}
+            position={Position.RIGHT}
+          >
+            <StyledAction onClick={onCopySelectedWidgets}>
+              <CopyIcon color="black" height={16} width={16} />
+            </StyledAction>
+          </Tooltip>
+          {/* cut widgets */}
+          <Tooltip
+            boundary="viewport"
+            content={cutHelpText}
+            maxWidth="400px"
+            modifiers={PopoverModifiers}
+            position={Position.RIGHT}
+          >
+            <StyledAction onClick={onCutSelectedWidgets}>
+              <CutIcon color="black" height={16} width={16} />
+            </StyledAction>
+          </Tooltip>
+          {/* delete widgets */}
+          <Tooltip
+            boundary="viewport"
+            content={deleteHelpText}
+            maxWidth="400px"
+            modifiers={PopoverModifiers}
+            position={Position.RIGHT}
+          >
+            <StyledAction onClick={onDeleteSelectedWidgets}>
+              <DeleteIcon color="black" height={16} width={16} />
+            </StyledAction>
+          </Tooltip>
         </StyledActions>
       </StyledActionsContainer>
     </StyledSelectionBox>
