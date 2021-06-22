@@ -1,8 +1,13 @@
 import styled from "styled-components";
 import React, { useMemo } from "react";
-import { useSelector } from "react-redux";
 import { get, minBy, maxBy } from "lodash";
+import { useSelector, useDispatch } from "react-redux";
 
+import {
+  copyWidget,
+  cutWidget,
+  deleteSelectedWidget,
+} from "actions/widgetActions";
 import { isMac } from "utils/helpers";
 import { FormIcons } from "icons/FormIcons";
 import { ControlIcons } from "icons/ControlIcons";
@@ -87,6 +92,7 @@ interface OffsetBox {
 }
 
 function WidgetsMultiSelectBox(props: { widgetId: string }): any {
+  const dispatch = useDispatch();
   const canvasWidgets = useSelector(getCanvasWidgets);
   const selectedWidgetIDs = useSelector(getSelectedWidgets);
   const selectedWidgets = selectedWidgetIDs.map(
@@ -145,6 +151,48 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
     return {};
   }, [selectedWidgets]);
 
+  /**
+   * copies the selected widgets
+   *
+   * @param e
+   */
+  const onCopySelectedWidgets = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dispatch(copyWidget(true));
+  };
+
+  /**
+   * cut the selected widgets
+   *
+   * @param e
+   */
+  const onCutSelectedWidgets = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dispatch(cutWidget());
+  };
+
+  /**
+   * cut the selected widgets
+   *
+   * @param e
+   */
+  const onDeleteSelectedWidgets = (
+    e: React.MouseEvent<HTMLButtonElement, MouseEvent>,
+  ) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    dispatch(deleteSelectedWidget(true));
+  };
+
   if (!shouldRender) return false;
 
   return (
@@ -170,13 +218,13 @@ function WidgetsMultiSelectBox(props: { widgetId: string }): any {
           </div>
         </StyledHelpBar>
         <StyledActions>
-          <StyledAction>
+          <StyledAction onClick={onCopySelectedWidgets}>
             <CopyIcon color="black" height={16} width={16} />
           </StyledAction>
-          <StyledAction>
+          <StyledAction onClick={onCutSelectedWidgets}>
             <CutIcon color="black" height={16} width={16} />
           </StyledAction>
-          <StyledAction>
+          <StyledAction onClick={onDeleteSelectedWidgets}>
             <DeleteIcon color="black" height={16} width={16} />
           </StyledAction>
         </StyledActions>
